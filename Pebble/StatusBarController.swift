@@ -14,9 +14,11 @@ final class StatusBarController {
     private var eventMonitor: Any?
     private let viewModel: CounterViewModel
     private var observationTask: Task<Void, Never>?
+    private let settingsWindowController: SettingsWindowController
 
     init(viewModel: CounterViewModel) {
         self.viewModel = viewModel
+        self.settingsWindowController = SettingsWindowController(viewModel: viewModel)
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         popover = NSPopover()
@@ -24,7 +26,10 @@ final class StatusBarController {
         popover.behavior = .transient
         popover.animates = true
 
-        let contentView = ContentView(viewModel: viewModel)
+        let contentView = ContentView(viewModel: viewModel) { [weak self] in
+            self?.closePopover()
+            self?.settingsWindowController.showSettings()
+        }
         popover.contentViewController = NSHostingController(rootView: contentView)
 
         updateButton()

@@ -9,6 +9,7 @@ import AppKit
 struct ContentView: View {
 
     @Bindable var viewModel: CounterViewModel
+    var onOpenSettings: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -70,43 +71,33 @@ struct ContentView: View {
                 .padding(.bottom, 8)
             }
 
-            // MARK: - Settings
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Global Hotkey")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                HotkeyRecorder(keycode: $viewModel.hotkeyKeycode)
-
-                Text("Menu Bar Icon")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 4)
-
-                Picker("", selection: $viewModel.useDarkIcon) {
-                    Label("Dark", systemImage: "circle.lefthalf.filled")
-                        .tag(true)
-                    Label("Light", systemImage: "circle.righthalf.filled")
-                        .tag(false)
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-
-            Divider()
-
-            // MARK: - Quit
-            Button {
-                NSApplication.shared.terminate(nil)
-            } label: {
-                Text("Quit Dhikr Counter")
+            // MARK: - Settings & Quit
+            VStack(spacing: 0) {
+                Button {
+                    onOpenSettings()
+                } label: {
+                    HStack {
+                        Image(systemName: "gearshape")
+                        Text("Settings…")
+                    }
                     .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 8)
+                .contentShape(Rectangle())
+
+                Divider()
+
+                Button {
+                    NSApplication.shared.terminate(nil)
+                } label: {
+                    Text("Quit Pebble")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 8)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .padding(.vertical, 8)
-            .contentShape(Rectangle())
         }
         .frame(width: 240)
         .onAppear {
