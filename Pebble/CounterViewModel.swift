@@ -15,6 +15,7 @@ final class CounterViewModel {
         static let dhikrCount = "dhikrCount"
         static let hotkeyKeycode = "hotkeyKeycode"
         static let iconStyle = "iconStyle"
+        static let tasbihs = "tasbihs"
     }
 
     static let defaultKeycode: Int = 105 // F13
@@ -37,6 +38,44 @@ final class CounterViewModel {
     /// Briefly set to `true` to trigger a menu-bar flash animation.
     var didIncrement: Bool = false
 
+    // MARK: - Tasbih
+
+    /// All saved tasbih sequences.
+    var tasbihs: [Tasbih] = [] {
+        didSet { saveTasbihs() }
+    }
+
+    /// The currently active tasbih sequence, or nil for free counting.
+    var activeTasbih: Tasbih?
+
+    /// Index of the current step within the active tasbih.
+    var currentStepIndex: Int = 0
+
+    /// Count within the current step.
+    var stepCount: Int = 0
+
+    /// Whether the active tasbih has been completed.
+    var tasbihCompleted: Bool = false
+
+    /// Display name for the current step, if a tasbih is active.
+    var currentStepName: String? {
+        guard let tasbih = activeTasbih,
+              currentStepIndex < tasbih.steps.count else { return nil }
+        return tasbih.steps[currentStepIndex].name
+    }
+
+    /// Target count for the current step.
+    var currentStepTarget: Int? {
+        guard let tasbih = activeTasbih,
+              currentStepIndex < tasbih.steps.count else { return nil }
+        return tasbih.steps[currentStepIndex].target
+    }
+
+    /// Total number of steps in the active tasbih.
+    var totalSteps: Int? {
+        activeTasbih?.steps.count
+    }
+
     init() {
         let defaults = UserDefaults.standard
         if defaults.object(forKey: Keys.hotkeyKeycode) == nil {
@@ -49,15 +88,57 @@ final class CounterViewModel {
             defaults.set(true, forKey: Keys.iconStyle)
         }
         self.useDarkIcon = defaults.bool(forKey: Keys.iconStyle)
+        self.tasbihs = Self.loadTasbihs()
     }
 
     func increment() {
-        count += 1
+        if let tasbih = activeTasbih, !tasbihCompleted {
+            guard currentStepIndex < tasbih.steps.count else { return }
+            stepCount += 1
+            let target = tasbih.steps[currentStepIndex].target
+            if stepCount >= target {
+                // Advance to next step
+                if currentStepIndex + 1 < tasbih.steps.count {
+                    currentStepIndex += 1
+                    stepCount = 0
+                } else {
+                    // Tasbih complete
+                    tasbihCompleted = true
+                }
+            }
+        } else {
+            count += 1
+        }
         flashMenuBar()
     }
 
     func reset() {
-        count = 0
+        if activeTasbih != nil {
+            stopTasbih()
+        } else {
+            count = 0
+        }
+    }
+
+    // MARK: - Tasbih Actions
+
+    func startTasbih(_ tasbih: Tasbih) {
+        activeTasbih = tasbih
+        currentStepIndex = 0
+        stepCount = 0
+        tasbihCompleted = false
+    }
+
+    func stopTasbih() {
+        activeTasbih = nil
+        currentStepIndex = 0
+        stepCount = 0
+        tasbihCompleted = false
+    }
+
+    func restartTasbih() {
+        guard let tasbih = activeTasbih else { return }
+        startTasbih(tasbih)
     }
 
     func checkAccessibility() {
@@ -103,5 +184,20 @@ final class CounterViewModel {
             125: "DownArrow", 126: "UpArrow",
         ]
         return knownKeys[keycode] ?? "Key \(keycode)"
+    }
+
+    // MARK: - Tasbih Persistence
+
+    private func saveTasbihs() {
+        guard let data = try? JSONEncoder().encode(tasbihs) else { return }
+        UserDefaults.standard.set(data, forKey: Keys.tasbihs)
+    }
+
+    private static func loadTasbihs() -> [Tasbih] {
+        guard let data = UserDefaults.standard.data(forKey: Keys.tasbihs),
+              let decoded = try? JSONDecoder().decode([Tasbih].self, from: data) else {
+            return []
+        }
+        return decoded
     }
 }

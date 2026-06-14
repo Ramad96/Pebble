@@ -7,11 +7,13 @@ import SwiftUI
 
 enum SettingsTab: String, CaseIterable {
     case general = "General"
+    case tasbih = "Tasbih"
     case about = "About"
 
     var icon: String {
         switch self {
         case .general: "gearshape"
+        case .tasbih: "list.bullet.rectangle"
         case .about: "info.circle"
         }
     }
@@ -32,11 +34,13 @@ struct SettingsView: View {
             switch selectedTab {
             case .general:
                 GeneralSettingsTab(viewModel: viewModel)
+            case .tasbih:
+                TasbihSettingsTab(viewModel: viewModel)
             case .about:
                 AboutTab()
             }
         }
-        .frame(width: 520, height: 260)
+        .frame(width: 560, height: 340)
     }
 }
 
@@ -103,6 +107,163 @@ private struct GeneralSettingsTab: View {
         .onAppear {
             viewModel.checkAccessibility()
         }
+    }
+}
+
+// MARK: - Tasbih Tab
+
+private struct TasbihSettingsTab: View {
+
+    @Bindable var viewModel: CounterViewModel
+    @State private var selectedTasbihID: Tasbih.ID?
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // Left: list of tasbihs
+            VStack(spacing: 0) {
+                List(selection: $selectedTasbihID) {
+                    ForEach(viewModel.tasbihs) { tasbih in
+                        HStack {
+                            Text(tasbih.name.isEmpty ? "Untitled" : tasbih.name)
+                                .lineLimit(1)
+                            Spacer()
+                            Text("\(tasbih.steps.count)")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                        .tag(tasbih.id)
+                    }
+                    .onDelete { offsets in
+                        let wasSelected = offsets.contains(where: {
+                            viewModel.tasbihs[$0].id == selectedTasbihID
+                        })
+                        viewModel.tasbihs.remove(atOffsets: offsets)
+                        if wasSelected { selectedTasbihID = viewModel.tasbihs.first?.id }
+                    }
+                }
+                .listStyle(.bordered(alternatesRowBackgrounds: true))
+
+                HStack(spacing: 4) {
+                    Button(action: addTasbih) {
+                        Image(systemName: "plus")
+                    }
+                    .buttonStyle(.borderless)
+
+                    Button(action: removeSelected) {
+                        Image(systemName: "minus")
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(selectedTasbihID == nil)
+
+                    Spacer()
+                }
+                .padding(6)
+            }
+            .frame(width: 170)
+
+            Divider()
+
+            // Right: editor
+            if let index = selectedIndex {
+                TasbihEditor(tasbih: $viewModel.tasbihs[index])
+            } else {
+                VStack {
+                    Spacer()
+                    Text("Select or create a tasbih")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var selectedIndex: Int? {
+        guard let id = selectedTasbihID else { return nil }
+        return viewModel.tasbihs.firstIndex(where: { $0.id == id })
+    }
+
+    private func addTasbih() {
+        let newTasbih = Tasbih(
+            name: "New Tasbih",
+            steps: [DhikrStep(name: "SubhanAllah", target: 33)]
+        )
+        viewModel.tasbihs.append(newTasbih)
+        selectedTasbihID = newTasbih.id
+    }
+
+    private func removeSelected() {
+        guard let index = selectedIndex else { return }
+        viewModel.tasbihs.remove(at: index)
+        selectedTasbihID = viewModel.tasbihs.first?.id
+    }
+}
+
+// MARK: - Tasbih Editor
+
+private struct TasbihEditor: View {
+
+    @Binding var tasbih: Tasbih
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Name field
+            TextField("Tasbih Name", text: $tasbih.name)
+                .textFieldStyle(.roundedBorder)
+                .font(.headline)
+
+            Text("Steps")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            // Steps list
+            List {
+                ForEach($tasbih.steps) { $step in
+                    HStack(spacing: 8) {
+                        TextField("Dhikr", text: $step.name)
+                            .textFieldStyle(.roundedBorder)
+
+                        TextField(
+                            "Count",
+                            value: $step.target,
+                            format: .number
+                        )
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 60)
+                        .multilineTextAlignment(.trailing)
+
+                        Button(role: .destructive) {
+                            tasbih.steps.removeAll { $0.id == step.id }
+                        } label: {
+                            Image(systemName: "trash")
+                                .foregroundStyle(.red)
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                }
+                .onMove { from, to in
+                    tasbih.steps.move(fromOffsets: from, toOffset: to)
+                }
+            }
+            .listStyle(.bordered(alternatesRowBackgrounds: true))
+
+            HStack {
+                Button {
+                    tasbih.steps.append(DhikrStep(name: "", target: 33))
+                } label: {
+                    Label("Add Step", systemImage: "plus")
+                }
+                .buttonStyle(.borderless)
+
+                Spacer()
+
+                Text("\(tasbih.steps.count) step\(tasbih.steps.count == 1 ? "" : "s")")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .padding(16)
     }
 }
 

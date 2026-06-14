@@ -50,6 +50,10 @@ final class StatusBarController {
                 withObservationTracking {
                     _ = self.viewModel.count
                     _ = self.viewModel.useDarkIcon
+                    _ = self.viewModel.activeTasbih
+                    _ = self.viewModel.stepCount
+                    _ = self.viewModel.currentStepIndex
+                    _ = self.viewModel.tasbihCompleted
                 } onChange: {
                     // onChange fires on a background thread; bounce to main
                     Task { @MainActor [weak self] in
@@ -77,10 +81,20 @@ final class StatusBarController {
         button.image = icon?.tinted(with: tintColor)
         button.imagePosition = .imageLeading
 
-        let title = " \(viewModel.count)"
+        let displayText: String
+        if viewModel.activeTasbih != nil {
+            if viewModel.tasbihCompleted {
+                displayText = " Done"
+            } else {
+                displayText = " \(viewModel.stepCount)"
+            }
+        } else {
+            displayText = " \(viewModel.count)"
+        }
+
         let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .medium)
         button.attributedTitle = NSAttributedString(
-            string: title,
+            string: displayText,
             attributes: [
                 .foregroundColor: tintColor,
                 .font: font
