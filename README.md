@@ -13,16 +13,25 @@ Press your chosen key, and Pebble silently ticks your count without breaking you
 - Count persists across sessions so you never lose your place
 - Simple, distraction-free design built for focus and presence
 
-## Installation
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AmanahDigital/Pebble/main/install.sh | bash
+```
+
+This will download the latest release, install it to `/Applications`, and offer to launch it for you.
+
+After launching, grant **Accessibility** access when prompted:
+
+- **System Settings → Privacy & Security → Accessibility → Toggle Pebble on**
+
+Then press **F13** (default) from anywhere to start counting.
+
+### Manual install
 
 1. Download the latest `Pebble.app` from [Releases](https://github.com/AmanahDigital/Pebble/releases)
 2. Move it to your **Applications** folder
-3. Open **Pebble** — it will appear as a small icon in your menu bar
-4. On first launch, macOS will ask you to grant **Accessibility** access:
-   - Click **"Grant Access…"** in the Pebble popover, or go manually to:
-   - **System Settings → Privacy & Security → Accessibility**
-   - Toggle **Pebble** on
-5. That's it — press **F13** (default) from anywhere to start counting
+3. Open **Pebble** and grant Accessibility access as described above
 
 ## Building from Source
 

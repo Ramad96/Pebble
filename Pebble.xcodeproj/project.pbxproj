@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B47072522FDED0AC004B10C9 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B47072512FDED0AC004B10C9 /* README.md */; };
+		B47072542FDED4D1004B10C9 /* install.sh in Resources */ = {isa = PBXBuildFile; fileRef = B47072532FDED4D1004B10C9 /* install.sh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +33,7 @@
 		B470722C2FDECBEA004B10C9 /* PebbleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PebbleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47072362FDECBEA004B10C9 /* PebbleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PebbleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47072512FDED0AC004B10C9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		B47072532FDED4D1004B10C9 /* install.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -85,6 +87,7 @@
 				B47072392FDECBEA004B10C9 /* PebbleUITests */,
 				B470721E2FDECBE8004B10C9 /* Products */,
 				B47072512FDED0AC004B10C9 /* README.md */,
+				B47072532FDED4D1004B10C9 /* install.sh */,
 			);
 			sourceTree = "<group>";
 		};
@@ -219,6 +222,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B47072522FDED0AC004B10C9 /* README.md in Resources */,
+				B47072542FDED4D1004B10C9 /* install.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
