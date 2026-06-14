@@ -16,7 +16,7 @@ Press your chosen key, and Pebble silently ticks your count without breaking you
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/AmanahDigital/Pebble/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Ramad96/Pebble/main/install.sh | bash
 ```
 
 This will download the latest release, install it to `/Applications`, and offer to launch it for you.
@@ -29,7 +29,7 @@ Then press **F13** (default) from anywhere to start counting.
 
 ### Manual install
 
-1. Download the latest `Pebble.app` from [Releases](https://github.com/AmanahDigital/Pebble/releases)
+1. Download the latest `Pebble.app` from [Releases](https://github.com/Ramad96/Pebble/releases)
 2. Move it to your **Applications** folder
 3. Open **Pebble** and grant Accessibility access as described above
 
@@ -43,4 +43,4 @@ Then press **F13** (default) from anywhere to start counting.
 
 ---
 
-A product of [AmanahDigital](https://github.com/AmanahDigital) — building thoughtful tools for the Muslim community.
+A product of [AmanahDigital](https://github.com/Ramad96) — building thoughtful tools for the Muslim community.

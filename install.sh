@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_NAME="Pebble"
-REPO="AmanahDigital/Pebble"
+REPO="Ramad96/Pebble"
 INSTALL_DIR="/Applications"
 TMP_DIR="$(mktemp -d)"
 
@@ -44,7 +44,7 @@ fi
 
 if [ -z "$DOWNLOAD_URL" ]; then
     echo "  ✗ Could not find a release to download."
-    echo "    Check https://github.com/${REPO}/releases"
+    echo "    Check https://github.com/Ramad96/Pebble/releases"
     exit 1
 fi
 
