@@ -68,8 +68,10 @@ final class StatusBarController {
 
     func updateButton() {
         guard let button = statusItem.button else { return }
-        button.image = NSImage(systemSymbolName: "circle.dotted", accessibilityDescription: "Dhikr Counter")
-        button.image?.size = NSSize(width: 16, height: 16)
+        let icon = NSImage(named: "MenuBarIcon")
+        icon?.size = NSSize(width: 18, height: 18)
+        icon?.isTemplate = true
+        button.image = icon
         button.imagePosition = .imageLeading
         button.title = " \(viewModel.count)"
         button.font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .medium)

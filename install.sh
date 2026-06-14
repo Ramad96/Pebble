@@ -36,18 +36,27 @@ fi
 echo "  → Downloading..."
 curl -sL "$DOWNLOAD_URL" -o "${TMP_DIR}/Pebble.zip"
 
+if [ ! -s "${TMP_DIR}/Pebble.zip" ]; then
+    echo "  ✗ Download failed."
+    rm -rf "$TMP_DIR"
+    exit 1
+fi
+
 # ── Unzip ─────────────────────────────────────────────────────────────
 echo "  → Unpacking..."
 unzip -qo "${TMP_DIR}/Pebble.zip" -d "${TMP_DIR}"
 
 # ── Find the .app ─────────────────────────────────────────────────────
-APP_BUNDLE="$(find "$TMP_DIR" -maxdepth 3 -name "*.app" -type d | head -1)"
+APP_BUNDLE="$(find "$TMP_DIR" -name "*.app" -type d | head -1)"
 
 if [ -z "$APP_BUNDLE" ]; then
-    echo "  ✗ Could not find ${APP_NAME}.app in the download."
+    echo "  ✗ No .app found in the zip. Contents:"
+    ls -R "$TMP_DIR"
     rm -rf "$TMP_DIR"
     exit 1
 fi
+
+echo "  → Found: $(basename "$APP_BUNDLE")"
 
 # ── Install ───────────────────────────────────────────────────────────
 if [ -d "${INSTALL_DIR}/${APP_NAME}.app" ]; then
@@ -55,12 +64,26 @@ if [ -d "${INSTALL_DIR}/${APP_NAME}.app" ]; then
     rm -rf "${INSTALL_DIR}/${APP_NAME}.app"
 fi
 
-echo "  → Installing to ${INSTALL_DIR}..."
-cp -R "$APP_BUNDLE" "${INSTALL_DIR}/${APP_NAME}.app"
+echo "  → Copying to ${INSTALL_DIR}..."
+if ! cp -R "$APP_BUNDLE" "${INSTALL_DIR}/${APP_NAME}.app"; then
+    echo "  ✗ Failed to copy. Trying with sudo..."
+    sudo cp -R "$APP_BUNDLE" "${INSTALL_DIR}/${APP_NAME}.app"
+fi
+
+# Verify it landed
+if [ ! -d "${INSTALL_DIR}/${APP_NAME}.app" ]; then
+    echo "  ✗ Installation failed — app not found in ${INSTALL_DIR}."
+    rm -rf "$TMP_DIR"
+    exit 1
+fi
+
 xattr -rd com.apple.quarantine "${INSTALL_DIR}/${APP_NAME}.app" 2>/dev/null || true
 
+# Force Spotlight to re-index so the app shows up in search
+mdimport "${INSTALL_DIR}/${APP_NAME}.app" 2>/dev/null || true
+
 echo ""
-echo "  ✓ Pebble installed!"
+echo "  ✓ Pebble installed to ${INSTALL_DIR}/${APP_NAME}.app"
 echo ""
 
 # ── Launch ────────────────────────────────────────────────────────────
