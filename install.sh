@@ -87,17 +87,9 @@ echo "  ✓ Pebble installed to ${INSTALL_DIR}/${APP_NAME}.app"
 echo ""
 
 # ── Launch ────────────────────────────────────────────────────────────
-read -rp "  Launch now? [Y/n] " LAUNCH
-LAUNCH="${LAUNCH:-Y}"
-if [[ "$LAUNCH" =~ ^[Yy]$ ]]; then
-    open "${INSTALL_DIR}/${APP_NAME}.app"
-    echo ""
-    echo "  🪨 Pebble is in your menu bar."
-    echo "     Grant Accessibility access when prompted, then press F13 to count."
-else
-    echo ""
-    echo "  Open Pebble from Applications or Spotlight whenever you're ready."
-fi
+open "${INSTALL_DIR}/${APP_NAME}.app"
+echo "  🪨 Pebble is running in your menu bar."
+echo "     Grant Accessibility access when prompted, then press F13 to count."
 
 # ── Cleanup ───────────────────────────────────────────────────────────
 rm -rf "$TMP_DIR"

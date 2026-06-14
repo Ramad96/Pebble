@@ -77,6 +77,20 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
 
                 HotkeyRecorder(keycode: $viewModel.hotkeyKeycode)
+
+                Text("Menu Bar Icon")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 4)
+
+                Picker("", selection: $viewModel.useDarkIcon) {
+                    Label("Dark", systemImage: "circle.lefthalf.filled")
+                        .tag(true)
+                    Label("Light", systemImage: "circle.righthalf.filled")
+                        .tag(false)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)

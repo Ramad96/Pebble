@@ -44,7 +44,7 @@ final class StatusBarController {
                 let countBefore = viewModel.count
                 withObservationTracking {
                     _ = self.viewModel.count
-                    _ = self.viewModel.didIncrement
+                    _ = self.viewModel.useDarkIcon
                 } onChange: {
                     // onChange fires on a background thread; bounce to main
                     Task { @MainActor [weak self] in
@@ -61,30 +61,26 @@ final class StatusBarController {
 
     private func handleChange() {
         updateButton()
-        if viewModel.didIncrement {
-            flashButton()
-        }
     }
 
     func updateButton() {
         guard let button = statusItem.button else { return }
         let icon = NSImage(named: "MenuBarIcon")
         icon?.size = NSSize(width: 18, height: 18)
-        icon?.isTemplate = true
-        button.image = icon
+        icon?.isTemplate = false
+        let tintColor: NSColor = viewModel.useDarkIcon ? .black : .white
+        button.image = icon?.tinted(with: tintColor)
         button.imagePosition = .imageLeading
-        button.title = " \(viewModel.count)"
-        button.font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .medium)
-    }
 
-    private func flashButton() {
-        guard let button = statusItem.button else { return }
-        let originalColor = button.contentTintColor
-        button.contentTintColor = .systemGreen
-        Task {
-            try? await Task.sleep(for: .milliseconds(250))
-            button.contentTintColor = originalColor
-        }
+        let title = " \(viewModel.count)"
+        let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .medium)
+        button.attributedTitle = NSAttributedString(
+            string: title,
+            attributes: [
+                .foregroundColor: tintColor,
+                .font: font
+            ]
+        )
     }
 
     @objc private func togglePopover(_ sender: AnyObject?) {
@@ -112,5 +108,21 @@ final class StatusBarController {
             NSEvent.removeMonitor(monitor)
             eventMonitor = nil
         }
+    }
+}
+
+// MARK: - NSImage tinting
+
+extension NSImage {
+    /// Returns a copy of the image filled with the given color, preserving the alpha channel.
+    func tinted(with color: NSColor) -> NSImage {
+        let tinted = NSImage(size: size, flipped: false) { rect in
+            self.draw(in: rect)
+            color.set()
+            rect.fill(using: .sourceAtop)
+            return true
+        }
+        tinted.isTemplate = false
+        return tinted
     }
 }

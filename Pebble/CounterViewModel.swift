@@ -14,6 +14,7 @@ final class CounterViewModel {
     private enum Keys {
         static let dhikrCount = "dhikrCount"
         static let hotkeyKeycode = "hotkeyKeycode"
+        static let iconStyle = "iconStyle"
     }
 
     static let defaultKeycode: Int = 105 // F13
@@ -24,6 +25,11 @@ final class CounterViewModel {
 
     var hotkeyKeycode: Int {
         didSet { UserDefaults.standard.set(hotkeyKeycode, forKey: Keys.hotkeyKeycode) }
+    }
+
+    /// Whether the menu bar icon is dark (black) or light (white).
+    var useDarkIcon: Bool {
+        didSet { UserDefaults.standard.set(useDarkIcon, forKey: Keys.iconStyle) }
     }
 
     var accessibilityGranted: Bool = false
@@ -38,6 +44,11 @@ final class CounterViewModel {
         }
         self.count = defaults.integer(forKey: Keys.dhikrCount)
         self.hotkeyKeycode = defaults.integer(forKey: Keys.hotkeyKeycode)
+        // Default to dark icon if no preference has been saved
+        if defaults.object(forKey: Keys.iconStyle) == nil {
+            defaults.set(true, forKey: Keys.iconStyle)
+        }
+        self.useDarkIcon = defaults.bool(forKey: Keys.iconStyle)
     }
 
     func increment() {
